@@ -3,7 +3,7 @@ Implementação em R dos métodos de previsão para variáveis dependentes logar
 
 # O Pacote Log Dependente 📈
 
-O pacote **Log Dependente** foi desenvolvido para facilitar a correção de viés em previsões de modelos de regressão linear onde a variável dependente está em escala logarítmica ($\log y$).
+O pacote **log.dependente** foi desenvolvido para facilitar a correção de viés em previsões de modelos de regressão linear onde a variável dependente está em escala logarítmica ($\log y$).
 
 ## 🧐 O Problema
 Em econometria, ao estimar um modelo $\log(y) = \beta_0 + \beta_1x + u$, a simples aplicação da função exponencial na previsão, $\exp(\widehat{\log y})$, resulta em um estimador enviesado da média de $y$ (geralmente subestimando o valor real). 
@@ -21,10 +21,10 @@ Este pacote implementa o **Procedimento de Wooldridge**, que utiliza fatores de 
 Você pode instalar a versão de desenvolvimento diretamente do GitHub utilizando o pacote `devtools`:
 
 ### install.packages("devtools")
-devtools::install_github("lima-barreto-afonso-henriques/log_dependente")
+devtools::install_github("lima-barreto-afonso-henriques/log.dependente")
 
 📖 Exemplo de Uso
-library(MeuPacoteEconometria)
+library(log.dependente)
 library(wooldridge)
 
 #### 1. Estimar um modelo em log

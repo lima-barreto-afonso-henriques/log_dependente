@@ -2,9 +2,17 @@
 % Please edit documentation in R/variavel_dependente_log.R
 \name{variavel_dependente_log}
 \alias{variavel_dependente_log}
-\title{Previsão Corrigida para Modelos com Variável Dependente em Log}
+\title{Previsão Corrigida para Modelos com Variável Dependente em Log (Wooldridge)}
 \usage{
-variavel_dependente_log(modelo_log, dados, nome_y)
+variavel_dependente_log(
+  modelo_log,
+  dados,
+  nome_y,
+  novos_dados = NULL,
+  conf_level = 0.95,
+  mostrar_diagnostico = TRUE,
+  na.action = na.exclude
+)
 }
 \arguments{
 \item{modelo_log}{Um objeto de classe \code{lm} estimado com log(y).}
@@ -12,32 +20,27 @@ variavel_dependente_log(modelo_log, dados, nome_y)
 \item{dados}{O data.frame original contendo as variáveis do modelo.}
 
 \item{nome_y}{Uma string com o nome da variável dependente na escala original (nível).}
+
+\item{novos_dados}{Opcional. Um data.frame com novos valores para prever.}
+
+\item{conf_level}{Nível de confiança para o intervalo (padrão 0.95).}
+
+\item{mostrar_diagnostico}{Lógico. Se TRUE (padrão), imprime os Alphas e R2 no console.}
+
+\item{na.action}{Define como lidar com NAs nos novos dados. Padrão é \code{na.exclude}.}
 }
 \value{
-Um \code{data.frame} contendo os valores reais, log ajustado,
-erro padrão do log, resíduos e as previsões corrigidas.
+Um \code{data.frame} com as previsões corrigidas, intervalos de confiança e valores originais.
 }
 \description{
 Esta função implementa os procedimentos de correção de viés de Wooldridge
-para modelos de regressão linear onde a variável dependente foi transformada
-usando logaritmo natural. Ela fornece as previsões "ingênuas" e as corrigidas
-pelos métodos de Alpha Chapéu (Média) e Alpha Til (Média de Wooldridge).
+para modelos de regressão linear onde a variável dependente está em logaritmo.
 }
 \details{
 Quando prevemos y em um modelo log-nível, exp(log_y_hat) é um estimador
-enviesado da média de y. Esta função calcula:
+enviesado da média de y. Esta função fornece as correções:
 \enumerate{
-\item \strong{Alpha_0_hat}: Baseado na média da exponencial dos resíduos.
-\item \strong{Alpha_0_tilde}: Baseado na regressão de y sobre exp(log_y_hat) sem intercepto.
+  \item \strong{Previsão Wooldridge (Alpha Til)}: Obtida via regressão de y sobre exp(log_y_hat) sem intercepto.
+  \item \strong{Previsão Média (Alpha Chapéu)}: Baseada na média da exponencial dos resíduos.
 }
-}
-\examples{
-\dontrun{
-library(wooldridge)
-data(hprice2)
-mod <- lm(log(price) ~ log(nox) + rooms, data = hprice2)
-resultados <- variavel_dependente_log(mod, hprice2, "price")
-head(resultados)
-}
-
 }

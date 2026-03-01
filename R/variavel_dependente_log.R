@@ -96,8 +96,8 @@ variavel_dependente_log <- function(
   # Os nomes das colunas agora batem exatamente com os fatores de correção
   df_res <- data.frame(
     Real = round(y_real_out, 3),
-    #Log_Ajustado              = round(pred_obj$fit, 3),
-    #Erro_Padrão_Log           = round(pred_obj$se.fit, 3),
+    Log_Ajustado = round(pred_obj$fit, 3),
+    Erro_Padrão_Log = round(pred_obj$se.fit, 3),
     Previsão_ingenua = round(m_hat_novo, 3),
     Previsão_alpha_chapeu = y_prev_media, # Correspondente ao Fator da Média
     Previsão_alpha_til = y_prev_wooldridge # Correspondente ao Fator de Regressão

@@ -39,11 +39,8 @@ variavel_dependente_log <- function(
   m_hat_orig <- exp(log_y_hat_orig)
 
   # 2. Fatores de Correção (Alphas) - Calculados na amostra original
-  # Alpha_0_chapéu (Método da Média)
   alpha_0_chap <- mean(exp(u_hat_orig), na.rm = TRUE)
 
-  # Alpha_0_til (Método de Wooldridge - Regressão sem intercepto)
-  # Usamos pesos se o modelo original for WLS
   pesos_orig <- weights(modelo_log)
   mod_aux <- lm(y_real_orig ~ 0 + m_hat_orig, weights = pesos_orig)
   alpha_0_til <- as.numeric(coef(mod_aux))
@@ -62,39 +59,52 @@ variavel_dependente_log <- function(
     y_real_out <- rep(NA, nrow(novos_dados))
   }
 
-  # 4. Cálculos das Previsões e Intervalos
+  # 4. Cálculos das Previsões e Intervalos (Arredondados para 3 casas)
   m_hat_novo <- exp(pred_obj$fit)
-  y_prev_wooldridge <- alpha_0_til * m_hat_novo
-  y_prev_media <- alpha_0_chap * m_hat_novo
+  y_prev_wooldridge <- round(alpha_0_til * m_hat_novo, 3)
+  y_prev_media <- round(alpha_0_chap * m_hat_novo, 3)
 
-  # Intervalo de Confiança (Baseado no Erro Padrão do Log e corrigido pelo Alpha de Wooldridge)
   t_critico <- qt((1 + conf_level) / 2, df = modelo_log$df.residual)
-  ic_inf <- alpha_0_til * exp(pred_obj$fit - t_critico * pred_obj$se.fit)
-  ic_sup <- alpha_0_til * exp(pred_obj$fit + t_critico * pred_obj$se.fit)
+  ic_inf <- round(
+    alpha_0_til * exp(pred_obj$fit - t_critico * pred_obj$se.fit),
+    3
+  )
+  ic_sup <- round(
+    alpha_0_til * exp(pred_obj$fit + t_critico * pred_obj$se.fit),
+    3
+  )
 
-  # 5. Relatório de Diagnóstico (Opcional)
+  # 5. Relatório de Diagnóstico (Arredondado para 3 casas)
   if (is.null(novos_dados) && mostrar_diagnostico) {
     r2_nivel <- cor(y_real_out, y_prev_wooldridge, use = "complete.obs")^2
     cat("\n--- Diagnóstico do Modelo (Wooldridge) ---\n")
-    cat("Fator Alpha_0_til (Wooldridge):", round(alpha_0_til, 4), "\n")
-    cat("Fator Alpha_0_chapéu (Média): ", round(alpha_0_chap, 4), "\n")
-    cat("R-Quadrado (Escala em Nível): ", round(r2_nivel, 4), "\n")
+    cat(
+      "Fator de Correção por Regressão (Alpha Til):",
+      round(alpha_0_til, 3),
+      "\n"
+    )
+    cat(
+      "Fator de Correção da Média (Alpha Chapéu):  ",
+      round(alpha_0_chap, 3),
+      "\n"
+    )
+    cat("R-Quadrado (Escala em Nível):              ", round(r2_nivel, 3), "\n")
     cat("------------------------------------------\n")
   }
 
-  # 6. Organização do Data Frame de Saída
+  # 6. Organização do Data Frame de Saída (Tudo com 3 casas)
+  # Ordem: Real -> Componentes do Log -> Previsão Ingênua -> Previsões Corrigidas e IC
   df_res <- data.frame(
-    Previsão_Wooldridge = y_prev_wooldridge,
+    Real = round(y_real_out, 3),
+    Log_Ajustado = round(pred_obj$fit, 3),
+    Erro_Padrão_Log = round(pred_obj$se.fit, 3),
+    Previsão_Ingênua = round(m_hat_novo, 3),
     Previsão_Média = y_prev_media,
-    Previsão_Ingênua = m_hat_novo,
+    Previsão_Wooldridge = y_prev_wooldridge,
     IC_Inferior = ic_inf,
-    IC_Superior = ic_sup,
-    Real = y_real_out,
-    Log_Ajustado = pred_obj$fit,
-    Erro_Padrão_Log = pred_obj$se.fit
+    IC_Superior = ic_sup
   )
 
-  # Se for predição externa, remove a coluna Real (que seria NA)
   if (!is.null(novos_dados)) {
     df_res$Real <- NULL
   }

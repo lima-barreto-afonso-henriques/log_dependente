@@ -93,18 +93,17 @@ variavel_dependente_log <- function(
   }
 
   # 6. Organização do Data Frame de Saída (Tudo com 3 casas)
-  # Ordem: Real -> Componentes do Log -> Previsão Ingênua -> Previsões Corrigidas e IC
+  # Os nomes das colunas agora batem exatamente com os fatores de correção
   df_res <- data.frame(
     Real = round(y_real_out, 3),
-    Log_Ajustado = round(pred_obj$fit, 3),
-    Erro_Padrão_Log = round(pred_obj$se.fit, 3),
-    Previsão_Ingênua = round(m_hat_novo, 3),
-    Previsão_Média = y_prev_media,
-    Previsão_Wooldridge = y_prev_wooldridge,
-    IC_Inferior = ic_inf,
-    IC_Superior = ic_sup
+    #Log_Ajustado              = round(pred_obj$fit, 3),
+    #Erro_Padrão_Log           = round(pred_obj$se.fit, 3),
+    Previsão_ingenua = round(m_hat_novo, 3),
+    Previsão_alpha_chapeu = y_prev_media, # Correspondente ao Fator da Média
+    Previsão_alpha_til = y_prev_wooldridge # Correspondente ao Fator de Regressão
+    #IC_Inferior_Alpha_Til     = ic_inf,
+    #IC_Superior_Alpha_Til     = ic_sup
   )
-
   if (!is.null(novos_dados)) {
     df_res$Real <- NULL
   }
